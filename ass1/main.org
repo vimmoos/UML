@@ -1,0 +1,11 @@
+#+TITLE: Uncertainty in Machine Learning \\ Assignment 1
+#+AUTHORS: Massimiliano Falzari (s3459101)
+
+* Sources of Uncertainty
+** Aleatoric
++
++
+** Epistemic
++
++
+* Are They Probabilities?
