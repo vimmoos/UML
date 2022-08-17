@@ -1,0 +1,288 @@
+#+TITLE: Uncertainty in Machine Learning \\ Assignment 3
+#+AUTHOR: Massimiliano Falzari (s3459101)
+
+* Out of Distribution Detection
+
+I have used an ensemble (10 NN) for epistemic uncertainty quantification and
+the machine learning model is a standard Convolutional NN
+
+The result can be seen in the table [[OOD]].
+The model that has the best performance is the ensemble
+model. However, the difference is not too evident.
+
+From the results, we can observe that the AUC is higher in the
+ensemble than in the baseline model. The accuracies are almost identical
+both for ID and OD.
+In [[ens_mnist_entropy]] and [[base_mnist_entropy]] we can see that the
+Baseline model has a higher peak around 0 for in distribution data.
+This is because this model does not use any Uncertainty quantification
+method and therefore is more confident resulting in lower entropy.
+For out-of-distribution data, there is no clear difference in entropy between the
+two models. The same is true for the max probability graphs
+([[ens_mnist_max_prob]],[[base_mnist_max_prob]]), there is no clear difference
+between the two models.
+The ROC curves ([[ens_mnist_roc]],[[base_mnist_roc]]) are also quite similar,
+however, from the AUC value in [[OOD]] we can see that the ensemble method
+is slightly better than the baseline model.
+
+#+NAME: OOD
+#+CAPTION: Results for Out of Distribution Detection
+|----------+---------------+---------------+-------------+-------------+-------------|
+| model    | ID            | OD            | ID accuracy | OD accuracy |         AUC |
+|----------+---------------+---------------+-------------+-------------+-------------|
+| ensemble | mnist         | fashion_mnist |      0.9044 |      0.1145 | 0.853628295 |
+|----------+---------------+---------------+-------------+-------------+-------------|
+| baseline | mnist         | fashion_mnist |      0.9025 |      0.1027 | 0.846553755 |
+|----------+---------------+---------------+-------------+-------------+-------------|
+
+
+* Reverse OOD Detection
+
+No, we do not obtain the same performance according to AUC. This is
+because of different reasons. First, the training process is stochastic
+so we should not expect the same results. Second, the features in the
+two datasets are different and therefore, in general, it is not the
+case that reversing the dataset in an OOD framework results in similar results.
+
+In [[ens_fash_entropy]] we can see a quite different pattern both for in
+and out distribution data with respect to [[ens_mnist_entropy]].
+This is probably because Fashion mnist has more features/ more
+information and therefore it is harder to learn compared to the
+standard mnist dataset. Indeed, we can see that the entropy is
+considerably higher both for in and out distribution data, which means
+less confidence.
+Similar pattern can be seen in [[ens_fash_max_prob]]. For in-distribution
+data the model is not really confident. For out-of-distribution data,
+the distribution has a really high peak of 0.2 which is completely
+different in [[ens_mnist_max_prob]].
+This again shows that Fashion mnist is harder to learn or it needs
+different architecture/hyperparameters.
+
+
+#+NAME: Reverse OOD
+#+CAPTION: Results for Reverse Out of Distribution Detection
+|----------+---------------+---------------+-------------+-------------+-------------|
+| model    | ID            | OD            | ID accuracy | OD accuracy |         AUC |
+|----------+---------------+---------------+-------------+-------------+-------------|
+| ensemble | fashion_mnist | mnist         |      0.7565 |      0.0715 | 0.827956175 |
+|----------+---------------+---------------+-------------+-------------+-------------|
+| baseline | fashion_mnist | mnist         |      0.7471 |      0.0575 | 0.821769015 |
+|----------+---------------+---------------+-------------+-------------+-------------|
+
+* Calibration
+
+The calibration errors are all really close to each other. The one
+with the lowest calibration error is the ensemble trained on the
+Fashion_mnist.
+
+If we compare the 3 reliability plot [[ens_total_rel]] [[base_total_rel]] and
+[[ens_fash_total_rel]], we can see that in general they are all
+underconfident.
+However, the [[ens_total_rel]] is slightly overconfident when the
+accuracy is low.
+Something similar can be seen in [[base_total_rel]].
+The number of bins used was 20.
+
+Finally, for the reliability plot per class, they can be read as a
+standard reliability plot taking into account only one class at the
+time. Therefore, if the red line is above the black one, then the model
+is underconfident; if the red line is below, then the model is overconfident.
+To construct these plots the idea was to use as prediction always the
+class for which we are doing the reliability plot. The true classes
+were the same as a normal plot and the confidence was the confidence
+for that particular class predicted by the model.
+#+NAME: Calibration
+#+CAPTION: Calibration errors
+|----------+---------------+---------------------|
+| model    | ID            |   Calibration Error |
+|----------+---------------+---------------------|
+| ensemble | mnist         | 0.11720183312464813 |
+|----------+---------------+---------------------|
+| baseline | mnist         | 0.11773799104029882 |
+|----------+---------------+---------------------|
+| ensemble | fashion_mnist | 0.10139520830329869 |
+|----------+---------------+---------------------|
+
+
+* PLOTS
+#+NAME: ens_mnist_entropy
+#+CAPTION: Ensemble (ID mnist) Entropy
+[[./ens_mnist_entropy.png]]
+
+#+NAME: ens_mnist_max_prob
+#+CAPTION: Ensemble (ID mnist) Max Probabilities
+[[./ens_mnist_max_prob.png]]
+
+#+NAME:ens_mnist_roc
+#+CAPTION: Ensemble (ID mnist) ROC curve
+[[./ens_mnist_roc.png]]
+
+#+NAME: base_mnist_entropy
+#+CAPTION: Baseline (ID mnist) Entropy
+[[./base_mnist_entropy.png]]
+
+#+NAME: base_mnist_max_prob
+#+CAPTION: Baseline (ID mnist) Max Probabilities
+[[./base_mnist_max_prob.png]]
+
+#+NAME:base_mnist_roc
+#+CAPTION: Baseline (ID mnist) ROC curve
+[[./base_mnist_roc.png]]
+
+#+NAME: ens_fash_entropy
+#+CAPTION: Ensemble (ID fashion_mnist) Entropy
+[[./ens_fash_entropy.png]]
+
+#+NAME: ens_fash_max_prob
+#+CAPTION: Ensemble (ID fashion_mnist) Max Probabilities
+[[./ens_fash_max_prob.png]]
+
+#+NAME:ens_fash_roc
+#+CAPTION: Ensemble (ID fashion_mnist) ROC curve
+[[./ens_fash_roc.png]]
+
+#+NAME: base_fash_entropy
+#+CAPTION: Baseline (ID fashion_mnist) Entropy
+[[./base_fash_entropy.png]]
+
+#+NAME: base_fash_max_prob
+#+CAPTION: Baseline (ID fashion_mnist) Max Probabilities
+[[./base_fash_max_prob.png]]
+
+#+NAME:base_fash_roc
+#+CAPTION: Baseline (ID fashion_mnist) ROC curve
+[[./base_fash_roc.png]]
+
+
+
+#+NAME:ens_total_rel
+#+CAPTION: Ensemble Reliability Plot (ID mnist)
+[[./ens_mnist_total_rel.png]]
+
+#+NAME:ens_total_0
+#+CAPTION:Ensemble Reliability Plot for class 0 (ID mnist)
+[[./ens_mnist_rel_0.png]]
+
+#+NAME:ens_total_1
+#+CAPTION:Ensemble Reliability Plot for class 1 (ID mnist)
+[[./ens_mnist_rel_1.png]]
+
+#+NAME:ens_total_2
+#+CAPTION:Ensemble Reliability Plot for class 2 (ID mnist)
+[[./ens_mnist_rel_2.png]]
+
+#+NAME:ens_total_3
+#+CAPTION:Ensemble Reliability Plot for class 3 (ID mnist)
+[[./ens_mnist_rel_3.png]]
+
+#+NAME:ens_total_4
+#+CAPTION:Ensemble Reliability Plot for class 4 (ID mnist)
+[[./ens_mnist_rel_4.png]]
+
+#+NAME:ens_total_5
+#+CAPTION:Ensemble Reliability Plot for class 5 (ID mnist)
+[[./ens_mnist_rel_5.png]]
+
+#+NAME:ens_total_6
+#+CAPTION:Ensemble Reliability Plot for class 6 (ID mnist)
+[[./ens_mnist_rel_6.png]]
+
+#+NAME:ens_total_7
+#+CAPTION:Ensemble Reliability Plot for class 7 (ID mnist)
+[[./ens_mnist_rel_7.png]]
+
+#+NAME:ens_total_8
+#+CAPTION:Ensemble Reliability Plot for class 8 (ID mnist)
+[[./ens_mnist_rel_8.png]]
+
+#+NAME:ens_total_9
+#+CAPTION:Ensemble Reliability Plot for class 9 (ID mnist)
+[[./ens_mnist_rel_9.png]]
+
+#+NAME:base_total_rel
+#+CAPTION: Baseline Reliability Plot (ID mnist)
+[[./base_mnist_total_rel.png]]
+
+#+NAME:base_total_0
+#+CAPTION:Baseline Reliability Plot for class 0 (ID mnist)
+[[./base_mnist_rel_0.png]]
+
+#+NAME:base_total_1
+#+CAPTION:Baseline Reliability Plot for class 1 (ID mnist)
+[[./base_mnist_rel_1.png]]
+
+#+NAME:base_total_2
+#+CAPTION:Baseline Reliability Plot for class 2 (ID mnist)
+[[./base_mnist_rel_2.png]]
+
+#+NAME:base_total_3
+#+CAPTION:Baseline Reliability Plot for class 3 (ID mnist)
+[[./base_mnist_rel_3.png]]
+
+#+NAME:base_total_4
+#+CAPTION:Baseline Reliability Plot for class 4 (ID mnist)
+[[./base_mnist_rel_4.png]]
+
+#+NAME:base_total_5
+#+CAPTION:Baseline Reliability Plot for class 5 (ID mnist)
+[[./base_mnist_rel_5.png]]
+
+#+NAME:base_total_6
+#+CAPTION:Baseline Reliability Plot for class 6 (ID mnist)
+[[./base_mnist_rel_6.png]]
+
+#+NAME:base_total_7
+#+CAPTION:Baseline Reliability Plot for class 7 (ID mnist)
+[[./base_mnist_rel_7.png]]
+
+#+NAME:base_total_8
+#+CAPTION:Baseline Reliability Plot for class 8 (ID mnist)
+[[./base_mnist_rel_8.png]]
+
+#+NAME:base_total_9
+#+CAPTION:Baseline Reliability Plot for class 9 (ID mnist)
+[[./base_mnist_rel_9.png]]
+
+#+NAME:ens_fash_total_rel
+#+CAPTION: Ensemble Reliability Plot (ID fash)
+[[./ens_fash_total_rel.png]]
+
+#+NAME:ens_fash_total_0
+#+CAPTION:Ensemble Reliability Plot for class 0 (ID fash)
+[[./ens_fash_rel_0.png]]
+
+#+NAME:ens_fash_total_1
+#+CAPTION:Ensemble Reliability Plot for class 1 (ID fash)
+[[./ens_fash_rel_1.png]]
+
+#+NAME:ens_fash_total_2
+#+CAPTION:Ensemble Reliability Plot for class 2 (ID fash)
+[[./ens_fash_rel_2.png]]
+
+#+NAME:ens_fash_total_3
+#+CAPTION:Ensemble Reliability Plot for class 3 (ID fash)
+[[./ens_fash_rel_3.png]]
+
+#+NAME:ens_fash_total_4
+#+CAPTION:Ensemble Reliability Plot for class 4 (ID fash)
+[[./ens_fash_rel_4.png]]
+
+#+NAME:ens_fash_total_5
+#+CAPTION:Ensemble Reliability Plot for class 5 (ID fash)
+[[./ens_fash_rel_5.png]]
+
+#+NAME:ens_fash_total_6
+#+CAPTION:Ensemble Reliability Plot for class 6 (ID fash)
+[[./ens_fash_rel_6.png]]
+
+#+NAME:ens_fash_total_7
+#+CAPTION:Ensemble Reliability Plot for class 7 (ID fash)
+[[./ens_fash_rel_7.png]]
+
+#+NAME:ens_fash_total_8
+#+CAPTION:Ensemble Reliability Plot for class 8 (ID fash)
+[[./ens_fash_rel_8.png]]
+
+#+NAME:ens_fash_total_9
+#+CAPTION:Ensemble Reliability Plot for class 9 (ID fash)
+[[./ens_fash_rel_9.png]]
